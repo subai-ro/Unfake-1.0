@@ -1,8 +1,12 @@
 # schema_creation.py
 import sqlite3
-import os
 
-# Define the SQL as a module-level variable
+db_path = r"D:\Unfake project\unfake.db"
+
+conn = sqlite3.connect(db_path)
+cursor = conn.cursor()
+
+# 1) Create or upgrade tables
 create_tables_sql = """
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,34 +74,35 @@ BEGIN
     WHERE article_id = NEW.article_id;
 END;
 """
+cursor.executescript(create_tables_sql)
+conn.commit()
 
-def init_db():
-    """Initialize the database with the schema"""
-    # Get the directory where the current file is located
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(current_dir, 'unfake.db')
-    
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    # Create tables
-    cursor.executescript(create_tables_sql)
-    conn.commit()
-    
-    # Clean up duplicate categories
-    cleanup_duplicates_sql = """
-    DELETE FROM categories
-    WHERE rowid NOT IN (
-        SELECT MIN(rowid)
-        FROM categories
-        GROUP BY category_name
-    );
-    """
-    cursor.execute(cleanup_duplicates_sql)
-    conn.commit()
-    
-    print("Database initialized successfully!")
-    conn.close()
+# 2) Create or replace the "v_low_credibility" view
+cursor.execute("DROP VIEW IF EXISTS v_low_credibility")
+cursor.execute("""
+CREATE VIEW v_low_credibility AS
+SELECT article_id, title, author_name, overall_rating
+FROM articles
+WHERE is_fake = 1
+  AND overall_rating <= 3
+""")
+conn.commit()
 
-if __name__ == "__main__":
-    init_db()
+# 3) Clean up duplicate categories
+cleanup_duplicates_sql = """
+DELETE FROM categories
+WHERE rowid NOT IN (
+    SELECT MIN(rowid)
+    FROM categories
+    GROUP BY category_name
+);
+"""
+cursor.execute(cleanup_duplicates_sql)
+conn.commit()
+
+print("All core tables + columns verified.")
+print("v_low_credibility view created/updated.")
+print("Duplicate categories removed.")
+
+conn.close()
+print("Schema creation/upgrade complete! Run app.py afterwards.")

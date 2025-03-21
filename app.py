@@ -1,7 +1,6 @@
 # app.py
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import os
-import logging
 from db import (
     check_user_credentials,
     get_user_id,
@@ -21,30 +20,9 @@ from db import (
     remove_category,
     remove_article
 )
-from statistics import get_admin_statistics, get_user_statistics
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev_key_123')  # Use environment variable in production
-
-# Ensure the instance folder exists
-try:
-    os.makedirs(app.instance_path, exist_ok=True)
-    logger.info(f"Instance path: {app.instance_path}")
-except Exception as e:
-    logger.error(f"Error creating instance path: {e}")
-
-@app.before_request
-def before_request():
-    logger.info(f"Received request: {request.method} {request.path}")
-
-@app.after_request
-def after_request(response):
-    logger.info(f"Returning response: {response.status_code}")
-    return response
+app.secret_key = "super_secret_key"
 
 @app.route('/')
 def home():
@@ -407,29 +385,6 @@ def my_profile():
         return redirect(url_for('login'))
     uid = get_user_id(session['username'])
     return redirect(url_for('user_profile', user_id=uid))
-
-@app.route('/admin/statistics')
-def admin_statistics():
-    if 'username' not in session or session['username'] != 'admin_user':
-        flash("Admin only.")
-        return redirect(url_for('login'))
-    
-    stats = get_admin_statistics()
-    return render_template('admin_statistics.html', stats=stats)
-
-@app.route('/user/statistics/<int:user_id>')
-def user_statistics(user_id):
-    if 'username' not in session:
-        flash("Please log in first.")
-        return redirect(url_for('login'))
-    
-    # Only allow users to view their own stats or admin to view any stats
-    if session['username'] != 'admin_user' and get_user_id(session['username']) != user_id:
-        flash("You can only view your own statistics.")
-        return redirect(url_for('dashboard'))
-    
-    stats = get_user_statistics(user_id)
-    return render_template('user_statistics.html', stats=stats, user_id=user_id)
 
 if __name__ == '__main__':
     app.run(debug=True)

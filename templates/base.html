@@ -9,8 +9,6 @@
     rel="stylesheet" 
     href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
   />
-  <!-- Chart.js for statistics -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-light">
@@ -38,16 +36,9 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('my_profile') }}">Profile</a>
           </li>
-          <!-- New Statistics link -->
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('user_statistics', user_id=get_user_id(session.username)) }}">My Statistics</a>
-          </li>
           {% if session.username == 'admin_user' %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('admin_panel') }}">Admin Panel</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('admin_statistics') }}">Admin Statistics</a>
             </li>
           {% endif %}
           <li class="nav-item">
