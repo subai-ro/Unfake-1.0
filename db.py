@@ -19,6 +19,15 @@ def get_connection():
     # Construct the path to the database file
     db_path = os.path.join(current_dir, 'unfake.db')
     
+    # Create the database if it doesn't exist
+    if not os.path.exists(db_path):
+        # Import and run schema creation
+        from schema_creation import create_tables_sql
+        conn = sqlite3.connect(db_path)
+        conn.executescript(create_tables_sql)
+        conn.commit()
+        conn.close()
+    
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row  # This enables column access by name
     return conn
