@@ -3,17 +3,17 @@ services:
     name: unfake
     env: python
     buildCommand: |
-      export PATH="/opt/render/project/poetry/bin:$PATH" &&
-      curl -sSL https://install.python-poetry.org | python3 - &&
-      poetry config virtualenvs.create true &&
-      poetry config virtualenvs.in-project true &&
-      poetry install
-    startCommand: |
-      export PATH="/opt/render/project/poetry/bin:$PATH" &&
-      /opt/render/project/poetry/bin/poetry run gunicorn wsgi:app --bind 0.0.0.0:$PORT --log-level debug
+      python -m venv .venv &&
+      . .venv/bin/activate &&
+      pip install poetry==1.7.1 &&
+      poetry config virtualenvs.create false &&
+      poetry install --no-interaction --no-ansi
+    startCommand: poetry run gunicorn wsgi:app --bind 0.0.0.0:$PORT --log-level debug
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.8
+      - key: POETRY_VERSION
+        value: 1.7.1
       - key: FLASK_ENV
         value: production
       - key: FLASK_DEBUG
@@ -22,5 +22,7 @@ services:
         generateValue: true
       - key: PYTHONUNBUFFERED
         value: "true"
+      - key: PATH
+        value: /opt/render/project/.venv/bin:$PATH
     healthCheckPath: /
     autoDeploy: true 
