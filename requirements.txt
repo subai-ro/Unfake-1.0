@@ -14,3 +14,4 @@ itsdangerous==2.1.2
 blinker==1.6.3
 packaging==24.2
 setuptools>=41.0.0
+wheel>=0.38.0
