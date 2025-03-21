@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import os
+import logging
 from db import (
     check_user_credentials,
     get_user_id,
@@ -22,8 +23,28 @@ from db import (
 )
 from statistics import get_admin_statistics, get_user_statistics
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
-app.secret_key = "super_secret_key"
+app.secret_key = os.environ.get('SECRET_KEY', 'dev_key_123')  # Use environment variable in production
+
+# Ensure the instance folder exists
+try:
+    os.makedirs(app.instance_path, exist_ok=True)
+    logger.info(f"Instance path: {app.instance_path}")
+except Exception as e:
+    logger.error(f"Error creating instance path: {e}")
+
+@app.before_request
+def before_request():
+    logger.info(f"Received request: {request.method} {request.path}")
+
+@app.after_request
+def after_request(response):
+    logger.info(f"Returning response: {response.status_code}")
+    return response
 
 @app.route('/')
 def home():
