@@ -2,8 +2,8 @@ services:
   - type: web
     name: unfake
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --log-level debug --error-logfile - --access-logfile -
+    buildCommand: curl -sSL https://install.python-poetry.org | python3 - && poetry install
+    startCommand: poetry run gunicorn wsgi:app --bind 0.0.0.0:$PORT --log-level debug --error-logfile - --access-logfile -
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.8
@@ -14,6 +14,10 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: PYTHONUNBUFFERED
+        value: "true"
+      - key: POETRY_VIRTUALENVS_CREATE
+        value: "true"
+      - key: POETRY_VIRTUALENVS_IN_PROJECT
         value: "true"
     healthCheckPath: /
     autoDeploy: true 
