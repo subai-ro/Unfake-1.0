@@ -2,8 +2,11 @@ services:
   - type: web
     name: unfake
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT
+    buildCommand: |
+      python3 -m pip install --upgrade pip &&
+      python3 -m pip install -r requirements.txt
+    startCommand: |
+      python3 -m gunicorn wsgi:app --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.8
@@ -15,5 +18,7 @@ services:
         generateValue: true
       - key: PYTHONUNBUFFERED
         value: "true"
+      - key: PYTHONPATH
+        value: /opt/render/project/src
     healthCheckPath: /
     autoDeploy: true 
