@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Admin Statistics{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Admin Statistics Dashboard</h1>
+    
+    <!-- User Registration Trends -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>User Registration Trends (Last 30 Days)</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>New Users</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in stats.user_registrations %}
+                        <tr>
+                            <td>{{ reg.date }}</td>
+                            <td>{{ reg.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Submission Trends -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Article Submission Trends (Last 30 Days)</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Articles Submitted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in stats.article_submissions %}
+                        <tr>
+                            <td>{{ sub.date }}</td>
+                            <td>{{ sub.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Statistics -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Rating Statistics (Last 30 Days)</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Total Ratings</th>
+                            <th>Average Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rating in stats.rating_stats %}
+                        <tr>
+                            <td>{{ rating.date }}</td>
+                            <td>{{ rating.total_ratings }}</td>
+                            <td>{{ "%.2f"|format(rating.avg_rating) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Distribution -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Category Distribution</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Number of Articles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in stats.category_distribution %}
+                        <tr>
+                            <td>{{ cat.category_name }}</td>
+                            <td>{{ cat.article_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fake vs Real Ratio -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Fake vs Real Article Ratio</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ratio in stats.fake_real_ratio %}
+                        <tr>
+                            <td>{{ "Fake" if ratio.is_fake else "Real" }}</td>
+                            <td>{{ ratio.count }}</td>
+                            <td>{{ "%.2f"|format(ratio.count / stats.fake_real_ratio|sum(attribute='count') * 100) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Back to Admin Panel</a>
+</div>
+{% endblock %} 

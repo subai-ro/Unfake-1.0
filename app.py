@@ -20,6 +20,7 @@ from db import (
     remove_category,
     remove_article
 )
+from statistics import get_admin_statistics, get_user_statistics
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
@@ -385,6 +386,29 @@ def my_profile():
         return redirect(url_for('login'))
     uid = get_user_id(session['username'])
     return redirect(url_for('user_profile', user_id=uid))
+
+@app.route('/admin/statistics')
+def admin_statistics():
+    if 'username' not in session or session['username'] != 'admin_user':
+        flash("Admin only.")
+        return redirect(url_for('login'))
+    
+    stats = get_admin_statistics()
+    return render_template('admin_statistics.html', stats=stats)
+
+@app.route('/user/statistics/<int:user_id>')
+def user_statistics(user_id):
+    if 'username' not in session:
+        flash("Please log in first.")
+        return redirect(url_for('login'))
+    
+    # Only allow users to view their own stats or admin to view any stats
+    if session['username'] != 'admin_user' and get_user_id(session['username']) != user_id:
+        flash("You can only view your own statistics.")
+        return redirect(url_for('dashboard'))
+    
+    stats = get_user_statistics(user_id)
+    return render_template('user_statistics.html', stats=stats, user_id=user_id)
 
 if __name__ == '__main__':
     app.run(debug=True)

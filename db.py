@@ -1,6 +1,7 @@
 # db.py
 import sqlite3
 import os
+from datetime import datetime
 
 # For ML
 import numpy as np
@@ -12,9 +13,14 @@ import pickle
 _model_pipeline = None
 
 def get_connection():
-    db_path = os.path.join(os.getcwd(), "unfake.db")  # Ensures DB is in the working directory
+    """Get database connection with proper path handling"""
+    # Get the directory where the current file is located
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Construct the path to the database file
+    db_path = os.path.join(current_dir, 'unfake.db')
+    
     conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row  # This enables column access by name
     return conn
 
 def check_user_credentials(username, password):
